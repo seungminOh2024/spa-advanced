@@ -1,189 +1,142 @@
 import { ResumesService } from '../services/resumes.service.js';
+import { HTTP_STATUS } from '../constants/http-status.constant.js';
+import { MESSAGES } from '../constants/message.constant.js';
 
 export class ResumesController{
     resumesService = new ResumesService();
+
+    createResumes = async (req, res, next) => {
+        try{
+            const user = req.user;
+            const { title, content } = req.body;
+            
+            const authorId = user.id;
+
+
+            const createdPost = await this.resumesService.createResumes({
+                data:  authorId,
+                       title,
+                       content,
+            })
+
+
+            return res.status(HTTP_STATUS.CREATED).json({
+                status: HTTP_STATUS.CREATED,
+                message: MESSAGES.RESUMES.CREATE.SUCCEED,
+                data: createdPost
+            })
+
+
+        } catch (err) {
+            next(err)
+        }
+    }
+
+    
+    findAllResumes = async (req, res, next) => {
+        try {
+
+            const user = req.user;
+            const authorId = user.id;
+
+            const resumes = await this.resumesService.findAllResumes(authorId);
+  
+            return res.status(HTTP_STATUS.OK).json({
+                status: HTTP_STATUS.OK,
+                message: MESSAGES.RESUMES.READ_LIST.SUCCEED,
+                data: resumes,
+              });
+
+
+
+        } catch (err) {
+            next(err)
+        }
+    }
+
+    
+    findResumeById = async (req, res, next) => {
+        try{
+            const user = req.user;
+            const authorId = user.id;
+  
+            const { id } = req.params;
+
+            const resume = this.resumesService.findResumeById(id);
+
+
+            return res.status(HTTP_STATUS.OK).json({
+                status: HTTP_STATUS.OK,
+                message: MESSAGES.RESUMES.READ_DETAIL.SUCCEED,
+                data: resume,
+              });
+
+
+        } catch(err) {
+            next(err)
+        }
+
+
+
+
+
+    }
+
+    updateResumeById = async (req, res, next) => {
+        try{
+            const user = req.user;
+            const authorId = user.id;
+        
+            const { id } = req.params;
+        
+            const { title, content } = req.body;
+
+            const updatedResume = await this.resumesService.updateResume(id, authorId, title, content); 
+
+            return res.status(HTTP_STATUS.OK).json({
+                status: HTTP_STATUS.OK,
+                message: MESSAGES.RESUMES.UPDATE.SUCCEED,
+                data: updatedResume,
+              });
+
+        } catch(err) {
+            next(err)
+        }
+
+    }
+
+    deleteResumeById = async (req, res, next) => {
+        try{
+            const user = req.user;
+            const authorId = user.id;
+  
+            const { id } = req.params;
+            
+            const deletedResume = await this.resumesService.deleteResumeById(authorId, id);
+
+
+
+            return res.status(HTTP_STATUS.OK).json({
+                status: HTTP_STATUS.OK,
+                message: MESSAGES.RESUMES.DELETE.SUCCEED,
+                data: deletedResume,
+             });
+
+        } catch(err) {
+            next(err)
+        }
+    }
+
+
 
 
 
 
 }
 
-async (req, res, next) => {
-    try {
-      const user = req.user;
-      const { title, content } = req.body;
-      const authorId = user.id;
-  
-      const data = await prisma.resume.create({
-        data: {
-          authorId,
-          title,
-          content,
-        },
-      });
-  
-      return res.status(HTTP_STATUS.CREATED).json({
-        status: HTTP_STATUS.CREATED,
-        message: MESSAGES.RESUMES.CREATE.SUCCEED,
-        data,
-      });
-    } catch (error) {
-      next(error);
-    }
-  });
-  
-  // 이력서 목록 조회
-  resumesRouter.get('/', async (req, res, next) => {
-    try {
-      const user = req.user;
-      const authorId = user.id;
-  
-      let { sort } = req.query;
-  
-      sort = sort?.toLowerCase();
-  
-      if (sort !== 'desc' && sort !== 'asc') {
-        sort = 'desc';
-      }
-  
-      let data = await prisma.resume.findMany({
-        where: { authorId },
-        orderBy: {
-          createdAt: sort,
-        },
-        include: {
-          author: true,
-        },
-      });
-  
-      data = data.map((resume) => {
-        return {
-          id: resume.id,
-          authorName: resume.author.name,
-          title: resume.title,
-          content: resume.content,
-          status: resume.status,
-          createdAt: resume.createdAt,
-          updatedAt: resume.updatedAt,
-        };
-      });
-  
-      return res.status(HTTP_STATUS.OK).json({
-        status: HTTP_STATUS.OK,
-        message: MESSAGES.RESUMES.READ_LIST.SUCCEED,
-        data,
-      });
-    } catch (error) {
-      next(error);
-    }
-  });
-  
-  // 이력서 상세 조회
-  resumesRouter.get('/:id', async (req, res, next) => {
-    try {
-      const user = req.user;
-      const authorId = user.id;
-  
-      const { id } = req.params;
-  
-      let data = await prisma.resume.findUnique({
-        where: { id: +id, authorId },
-        include: { author: true },
-      });
-  
-      if (!data) {
-        return res.status(HTTP_STATUS.NOT_FOUND).json({
-          status: HTTP_STATUS.NOT_FOUND,
-          message: MESSAGES.RESUMES.COMMON.NOT_FOUND,
-        });
-      }
-  
-      data = {
-        id: data.id,
-        authorName: data.author.name,
-        title: data.title,
-        content: data.content,
-        status: data.status,
-        createdAt: data.createdAt,
-        updatedAt: data.updatedAt,
-      };
-  
-      return res.status(HTTP_STATUS.OK).json({
-        status: HTTP_STATUS.OK,
-        message: MESSAGES.RESUMES.READ_DETAIL.SUCCEED,
-        data,
-      });
-    } catch (error) {
-      next(error);
-    }
-  });
   
   
-  resumesRouter.put('/:id', updateResumeValidator, async (req, res, next) => {
-    try {
-      const user = req.user;
-      const authorId = user.id;
+ 
   
-      const { id } = req.params;
   
-      const { title, content } = req.body;
   
-      let existedResume = await prisma.resume.findUnique({
-        where: { id: +id, authorId },
-      });
-  
-      if (!existedResume) {
-        return res.status(HTTP_STATUS.NOT_FOUND).json({
-          status: HTTP_STATUS.NOT_FOUND,
-          message: MESSAGES.RESUMES.COMMON.NOT_FOUND,
-        });
-      }
-  
-      const data = await prisma.resume.update({
-        where: { id: +id, authorId },
-        data: {
-          ...(title && { title }),
-          ...(content && { content }),
-        },
-      });
-  
-      return res.status(HTTP_STATUS.OK).json({
-        status: HTTP_STATUS.OK,
-        message: MESSAGES.RESUMES.UPDATE.SUCCEED,
-        data,
-      });
-    } catch (error) {
-      next(error);
-    }
-  });
-  
-  // 이력서 삭제
-  resumesRouter.delete('/:id', async (req, res, next) => {
-    try {
-      const user = req.user;
-      const authorId = user.id;
-  
-      const { id } = req.params;
-  
-      let existedResume = await prisma.resume.findUnique({
-        where: { id: +id, authorId },
-      });
-  
-      if (!existedResume) {
-        return res.status(HTTP_STATUS.NOT_FOUND).json({
-          status: HTTP_STATUS.NOT_FOUND,
-          message: MESSAGES.RESUMES.COMMON.NOT_FOUND,
-        });
-      }
-  
-      const data = await prisma.resume.delete({ where: { id: +id, authorId } });
-  
-      return res.status(HTTP_STATUS.OK).json({
-        status: HTTP_STATUS.OK,
-        message: MESSAGES.RESUMES.DELETE.SUCCEED,
-        data: { id: data.id },
-      });
-    } catch (error) {
-      next(error);
-    }
-  });

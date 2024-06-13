@@ -1,6 +1,6 @@
 import { prisma } from '../utils/prisma.util.js';
 
-export class PostsRepository{
+export class UsersRepository{
 
     findUserById =  async (id) => {
         const user = await prisma.user.findUnique({

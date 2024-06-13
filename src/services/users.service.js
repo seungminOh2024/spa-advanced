@@ -1,4 +1,4 @@
-import { UsersRepository } from '../repositories/'
+import { UsersRepository } from '../repositories/users.repository.js';
 
 export class UsersService {
     usersRepository = new UsersRepository();

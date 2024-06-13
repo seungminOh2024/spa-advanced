@@ -1,5 +1,6 @@
 import { ResumesRepository } from '../repositories/resumes.repository.js';
 import { MESSAGES } from '../constants/message.constant.js';
+import { HttpError } from '../errors/http.error.js';
 
 
 export class ResumesService {
@@ -23,16 +24,9 @@ export class ResumesService {
 
     }
 
-    findAllResumes = async (authorId) => {
-        const resumes = await this.resumesRepository.findAllResumes(authorId);
+    findAllResumesByAuthorId = async (authorId) => {
+        const resumes = await this.resumesRepository.findAllResumesByAuthorId(authorId);
 
-        let { sort } = req.query;
-
-        sort = sort?.toLowerCase();
-    
-        if (sort !== 'desc' && sort !== 'asc') {
-          sort = 'desc';
-        }
 
         return resumes.map((resume) => {
             return {
@@ -51,7 +45,7 @@ export class ResumesService {
         const resume = await this.resumesRepository.findResumeById(id, authorId);
 
         if(!resume)
-            throw new Error(MESSAGES.RESUMES.COMMON.NOT_FOUND) 
+            throw new HttpError.NotFound(MESSAGES.RESUMES.COMMON.NOT_FOUND) 
         
 
         return{
@@ -69,7 +63,7 @@ export class ResumesService {
         const resume = await this.resumesRepository.findResumeById(id, authorId);
     
         if(!resume)
-            throw new Error(MESSAGES.RESUMES.COMMON.NOT_FOUND) 
+            throw new HttpError.NotFound(MESSAGES.RESUMES.COMMON.NOT_FOUND) 
 
         await this.resumesRepository.updateResumeById(id, authorId, title, content);
 
@@ -80,11 +74,11 @@ export class ResumesService {
     }
 
 
-    deleteResume = async (id, authorId) =>{
+    deleteResumeById = async (id, authorId) =>{
         const resume = await this.resumesRepository.findResumeById(id, authorId);
 
         if(!resume)
-            throw new Error('MESSAGES.RESUMES.COMMON.NOT_FOUND') 
+            throw new HttpError.NotFound(MESSAGES.RESUMES.COMMON.NOT_FOUND) 
 
         await this.resumesRepository.deletePost(id, authorId);
 

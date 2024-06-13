@@ -5,25 +5,20 @@ import { MESSAGES } from '../constants/message.constant.js';
 export class ResumesController{
     resumesService = new ResumesService();
 
-    createResumes = async (req, res, next) => {
+    createResume = async (req, res, next) => {
         try{
             const user = req.user;
             const { title, content } = req.body;
-            
             const authorId = user.id;
 
 
-            const createdPost = await this.resumesService.createResumes({
-                data:  authorId,
-                       title,
-                       content,
-            })
+            const createdResume = await this.resumesService.createResume(authorId, title, content,)
 
 
             return res.status(HTTP_STATUS.CREATED).json({
                 status: HTTP_STATUS.CREATED,
                 message: MESSAGES.RESUMES.CREATE.SUCCEED,
-                data: createdPost
+                data: createdResume
             })
 
 
@@ -33,13 +28,13 @@ export class ResumesController{
     }
 
     
-    findAllResumes = async (req, res, next) => {
+    findAllResumesByAuthorId = async (req, res, next) => {
         try {
 
             const user = req.user;
             const authorId = user.id;
 
-            const resumes = await this.resumesService.findAllResumes(authorId);
+            const resumes = await this.resumesService.findAllResumesByAuthorId(authorId);
   
             return res.status(HTTP_STATUS.OK).json({
                 status: HTTP_STATUS.OK,
@@ -62,7 +57,7 @@ export class ResumesController{
   
             const { id } = req.params;
 
-            const resume = this.resumesService.findResumeById(id);
+            const resume = await this.resumesService.findResumeById(id);
 
 
             return res.status(HTTP_STATUS.OK).json({

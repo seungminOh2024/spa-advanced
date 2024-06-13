@@ -54,19 +54,25 @@ export const MESSAGES = {
     },
     CREATE: {
       SUCCEED: '이력서 생성에 성공했습니다.',
+      FAILED : '이력서 생성에 실패했습니다.',
     },
     READ_LIST: {
       SUCCEED: '이력서 목록 조회에 성공했습니다.',
+      FAILED: '이력서 목록 조회에 실패했습니다.',
     },
     READ_DETAIL: {
       SUCCEED: '이력서 상세 조회에 성공했습니다.',
+      FAILED: '이력서 상세 조회에 실패했습니다.',
     },
     UPDATE: {
       SUCCEED: '이력서 수정에 성공했습니다.',
+      FAILED: '이력서 수정에 실패했습니다.',
       NO_BODY_DATA: '수정 할 정보를 입력해 주세요.',
     },
     DELETE: {
       SUCCEED: '이력서 삭제에 성공했습니다.',
+      FAILED:'이력서 삭제에 실패했습니다.',
     },
   },
+
 };
